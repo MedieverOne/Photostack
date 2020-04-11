@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_photos_new">
+
+    <fragment
+        android:id="@+id/navigation_photos_new"
+        android:name="com.mediever.softworks.androidtest.ui.photos_new.PhotosNewFragment"
+        tools:layout="@layout/fragment_photos_new" >
+        <action
+            android:id="@+id/action_photos_new_to_photo_info"
+            app:destination="@id/navigation_photo_info" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_photos_popular"
+        android:name="com.mediever.softworks.androidtest.ui.photos_popular.PhotosPopularFragment"
+        tools:layout="@layout/fragment_photos_popular" >
+        <action
+            android:id="@+id/action_photos_popular_to_photo_info"
+            app:destination="@id/navigation_photo_info" />
+    </fragment>
+
+    <activity
+        android:id="@+id/navigation_photo_info"
+        android:name="com.mediever.softworks.androidtest.ui.photo_info.PhotoInfoActivity"
+        tools:layout="@layout/activity_photo_info" />
+
+</navigation>

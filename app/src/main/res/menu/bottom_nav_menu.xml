@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_photos_new"
+        android:icon="@drawable/calendar_today"
+        android:title="@string/title_photos_new" />
+
+    <item
+        android:id="@+id/navigation_photos_popular"
+        android:icon="@drawable/fire"
+        android:title="@string/title_photos_popular" />
+
+</menu>
