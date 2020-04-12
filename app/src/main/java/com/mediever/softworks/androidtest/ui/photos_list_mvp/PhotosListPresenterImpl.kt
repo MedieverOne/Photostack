@@ -16,9 +16,9 @@ class PhotosListPresenterImpl(var view: PhotosListContract.PhotosListView?,
     // Общение с view
     override fun updateData() = repository.updateData(popular)
 
-    override fun getPicturesPage(page: Int) {
+    override fun getPicturesPage() {
         view!!.showProgress()
-        repository.downloadNewPage(page,new,popular)
+        repository.downloadNewPage(new,popular)
     }
 
     override fun getAll() {
@@ -33,6 +33,10 @@ class PhotosListPresenterImpl(var view: PhotosListContract.PhotosListView?,
         if(disposable != null)
             disposable!!.dispose()
         repository.onStop()
+    }
+
+    override fun initData() {
+        repository.initData(popular)
     }
 
     // Общение с репозиторием

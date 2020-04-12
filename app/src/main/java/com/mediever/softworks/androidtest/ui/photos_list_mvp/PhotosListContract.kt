@@ -13,7 +13,8 @@ interface PhotosListContract {
 
     interface PhotosListPresenter {
         fun updateData()
-        fun getPicturesPage(page:Int)
+        fun initData()
+        fun getPicturesPage()
         fun getAll()
         fun onStop()
     }

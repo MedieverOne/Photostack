@@ -26,13 +26,12 @@ import com.mediever.softworks.androidtest.util.Constants
 import com.mediever.softworks.androidtest.util.GridItemDecoration
 import com.mediever.softworks.androidtest.util.PicturesUtilCallback
 
-class PhotosPopularFragment : Fragment(), PhotosListContract.PhotosListView, SwipeRefreshLayout.OnRefreshListener{
+class PhotosPopularFragment : Fragment(), PhotosListContract.PhotosListView, SwipeRefreshLayout.OnRefreshListener {
 
     lateinit var gridLayoutManager: GridLayoutManager
     var presenter:PhotosListPresenterImpl?  = null
     var state: Constants.FragmentState      = Constants.FragmentState.INIT
     var loading = false
-    var page    = 1
     lateinit var recyclerView:RecyclerView
     lateinit var listAdapter:PhotosAdapter
     lateinit var root:View
@@ -113,7 +112,7 @@ class PhotosPopularFragment : Fragment(), PhotosListContract.PhotosListView, Swi
 
     private fun getPicturesPage() {
         changeState(Constants.FragmentState.LOADING)
-        presenter!!.getPicturesPage(page)
+        presenter!!.getPicturesPage()
     }
 
     /* *********************************************
@@ -137,15 +136,13 @@ class PhotosPopularFragment : Fragment(), PhotosListContract.PhotosListView, Swi
     } // Handler
 
     fun initScreen() {
-        page = 1
         listAdapter.clearData()
         showProgress()
-        getPicturesPage()
+        presenter!!.initData()
     }
 
     fun updateData() {
         presenter!!.updateData()
-        page = 1
         listAdapter.clearData()
         showProgress()
     }
@@ -153,8 +150,6 @@ class PhotosPopularFragment : Fragment(), PhotosListContract.PhotosListView, Swi
     fun badConnection() { showProgress() }
 
     fun newPage() {
-        loading = true
-        page++
         showProgress()
         getPicturesPage()
     }
@@ -224,4 +219,6 @@ class PhotosPopularFragment : Fragment(), PhotosListContract.PhotosListView, Swi
         if(state != Constants.FragmentState.LOADING)
             changeState(Constants.FragmentState.UPDATE_DATA)
     }
+
+
 }

@@ -6,9 +6,10 @@ import io.reactivex.Observable
 
 interface RepositoryContract {
     interface PicturesRepositoryContract {
-        fun downloadNewPage(page:Int,new:Boolean,popular:Boolean)
+        fun downloadNewPage(new:Boolean,popular:Boolean)
         fun getAll(new:Boolean,popular:Boolean) : Observable<List<Picture>>
         fun updateData(popular:Boolean)
+        fun initData(popular: Boolean)
         fun onStop()
     }
 

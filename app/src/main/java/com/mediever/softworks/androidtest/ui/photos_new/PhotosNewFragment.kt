@@ -2,6 +2,7 @@ package com.mediever.softworks.androidtest.ui.photos_new
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -33,7 +34,6 @@ class PhotosNewFragment : Fragment(), PhotosListContract.PhotosListView , SwipeR
     var presenter:PhotosListPresenterImpl?  = null
     var state: Constants.FragmentState      = Constants.FragmentState.INIT
     var loading = false
-    var page    = 1
     lateinit var recyclerView:RecyclerView
     lateinit var listAdapter:PhotosAdapter
     lateinit var root:View
@@ -113,7 +113,7 @@ class PhotosNewFragment : Fragment(), PhotosListContract.PhotosListView , SwipeR
 
     private fun getPicturesPage() {
         changeState(Constants.FragmentState.LOADING)
-        presenter!!.getPicturesPage(page)
+        presenter!!.getPicturesPage()
     }
 
     /* *********************************************
@@ -137,15 +137,13 @@ class PhotosNewFragment : Fragment(), PhotosListContract.PhotosListView , SwipeR
     } // Handler
 
     fun initScreen() {
-        page = 1
         listAdapter.clearData()
         showProgress()
-        getPicturesPage()
+        presenter!!.initData()
     }
 
     fun updateData() {
         presenter!!.updateData()
-        page = 1
         listAdapter.clearData()
         showProgress()
     }
@@ -154,7 +152,6 @@ class PhotosNewFragment : Fragment(), PhotosListContract.PhotosListView , SwipeR
 
     fun newPage() {
         loading = true
-        page++
         showProgress()
         getPicturesPage()
     }

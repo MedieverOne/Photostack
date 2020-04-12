@@ -1,5 +1,6 @@
 package com.mediever.softworks.androidtest.repository
 
+import android.util.Log
 import androidx.annotation.NonNull
 import com.mediever.softworks.androidtest.database.PicturesDatabase
 import com.mediever.softworks.androidtest.models.Picture
@@ -16,13 +17,16 @@ class PicturesRepository(val presenter:RepositoryContract.PicturesPresenterContr
     var disposable: Disposable? = null
     val realm:Realm = Realm.getDefaultInstance()
     private val database: PicturesDatabase = PicturesDatabase()
+    var prevPage: Int = 0 // предотвращение повторной загрузки
+    var page: Int = 1
 
     private fun addPage(pictures: List<Picture>) = database.addPicturesPage(pictures)
 
-    override fun downloadNewPage(page: Int, new: Boolean, popular: Boolean) {
+    override fun downloadNewPage(new: Boolean, popular: Boolean) {
         // проверка на популярность и то была ли загружена страница в БД
-        if( (popular && page > Constants.totalPopularPages)
-            || (!popular && page > Constants.totalNewPages)) {
+        if( ((popular && page > Constants.totalPopularPages)
+            || (!popular && page > Constants.totalNewPages)) && prevPage != page) {
+            Log.d("HALO", "loading page: " + page)
             disposable = ApiClient.instance
                 .getPicturesPage(new, popular, page, Constants.LIMIT_PER_PAGE)
                 .subscribeOn(Schedulers.io())
@@ -38,6 +42,8 @@ class PicturesRepository(val presenter:RepositoryContract.PicturesPresenterContr
                                     Constants.totalPopularPages++
                                 else
                                     Constants.totalNewPages++
+                                prevPage = page
+                                page++
                                 presenter.onSuccess()
                             }
                         }
@@ -64,11 +70,21 @@ class PicturesRepository(val presenter:RepositoryContract.PicturesPresenterContr
     override fun getAll(new: Boolean, popular: Boolean): Observable<List<Picture>>
             = Observable.just(realm.where(Picture::class.java).findAll())
 
+    override fun initData(popular:Boolean) {
+        page = if(popular) Constants.totalPopularPages + 1 else Constants.totalNewPages + 1
+        prevPage = page-1
+        if(page != 1)
+            presenter.onSuccess()
+        else
+            downloadNewPage(true,popular)
+    }
 
     override fun updateData(popular:Boolean) {
+        page = 1
+        prevPage = 0
         Constants.totalNewPages = 0
         Constants.totalPopularPages = 0
-        downloadNewPage(1,true,popular)
+        downloadNewPage(true,popular)
         database.clearRealm(popular)
     }
 
