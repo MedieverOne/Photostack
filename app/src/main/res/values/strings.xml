@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Photo Stack</string>
+    <string name="app_name">Photostack</string>
     <string name="title_photos_new">New</string>
     <string name="title_photos_popular">Popular</string>
 
