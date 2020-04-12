@@ -26,10 +26,7 @@ class PhotosListPresenterImpl(var view: PhotosListContract.PhotosListView?,
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { response ->
-                if(response.size != 0)
-                    view!!.onSuccess(response.filter { (it.new == new) && (it.popular == popular) })
-                else
-                    emptyRepository()
+                view!!.onSuccess(response.filter { (it.new == new) && (it.popular == popular) })
             }
     }
     override fun onStop() {

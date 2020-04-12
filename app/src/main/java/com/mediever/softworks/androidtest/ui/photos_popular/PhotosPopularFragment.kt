@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -102,8 +103,10 @@ class PhotosPopularFragment : Fragment(), PhotosListContract.PhotosListView, Swi
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 val totalItemCount = recyclerView.layoutManager!!.itemCount
-                if (!loading && totalItemCount == (lastVisibleItemPosition + 1))
+                if (!loading && totalItemCount == (lastVisibleItemPosition + 1)) {
+                    loading = true
                     changeState(Constants.FragmentState.NEW_PAGE)
+                }
             }
         })
     }
@@ -150,6 +153,7 @@ class PhotosPopularFragment : Fragment(), PhotosListContract.PhotosListView, Swi
     fun badConnection() { showProgress() }
 
     fun newPage() {
+        loading = true
         page++
         showProgress()
         getPicturesPage()
@@ -195,12 +199,16 @@ class PhotosPopularFragment : Fragment(), PhotosListContract.PhotosListView, Swi
     }
 
     override fun onSuccess(picturesList: List<Picture>) {
-        val diffUtilCallback: PicturesUtilCallback
-                = PicturesUtilCallback(listAdapter.mData, picturesList)
-        val picturesDiffResult = DiffUtil.calculateDiff(diffUtilCallback)
-        listAdapter.setData(picturesList)
-        picturesDiffResult.dispatchUpdatesTo(listAdapter)
-        changeState(Constants.FragmentState.ACTIVE)
+        if(picturesList.isNotEmpty()) {
+            val diffUtilCallback: PicturesUtilCallback
+                    = PicturesUtilCallback(listAdapter.mData, picturesList)
+            val picturesDiffResult = DiffUtil.calculateDiff(diffUtilCallback)
+            listAdapter.setData(picturesList)
+            picturesDiffResult.dispatchUpdatesTo(listAdapter)
+            changeState(Constants.FragmentState.ACTIVE)
+        }else{
+            getPicturesPage()
+        }
     }
 
     override fun onError() {
@@ -214,6 +222,6 @@ class PhotosPopularFragment : Fragment(), PhotosListContract.PhotosListView, Swi
     override fun onRefresh() {
         swipeRefreshLayout.isRefreshing = false
         if(state != Constants.FragmentState.LOADING)
-            changeState(Constants.FragmentState.INIT)
+            changeState(Constants.FragmentState.UPDATE_DATA)
     }
 }
