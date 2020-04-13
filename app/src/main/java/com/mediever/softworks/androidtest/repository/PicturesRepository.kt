@@ -2,93 +2,105 @@ package com.mediever.softworks.androidtest.repository
 
 import android.util.Log
 import androidx.annotation.NonNull
+import com.mediever.softworks.androidtest.database.PicPageDataModel
 import com.mediever.softworks.androidtest.database.PicturesDatabase
 import com.mediever.softworks.androidtest.models.Picture
 import com.mediever.softworks.androidtest.network.ApiClient
 import com.mediever.softworks.androidtest.util.Constants
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.realm.*
 
-class PicturesRepository(val presenter:RepositoryContract.PicturesPresenterContract) : RepositoryContract.PicturesRepositoryContract {
-    @NonNull
-    var disposable: Disposable? = null
-    val realm:Realm = Realm.getDefaultInstance()
+class PicturesRepository(private val presenter: RepositoryContract.PicturesPresenterContract) :
+    RepositoryContract.PicturesRepositoryContract {
+    private var disposable: Disposable = CompositeDisposable()
+    private val realm: Realm = Realm.getDefaultInstance()
     private val database: PicturesDatabase = PicturesDatabase()
-    var prevPage: Int = 0 // предотвращение повторной загрузки
     var page: Int = 1
-
-    private fun addPage(pictures: List<Picture>) = database.addPicturesPage(pictures)
-
-    override fun downloadNewPage(new: Boolean, popular: Boolean) {
-        // проверка на популярность и то была ли загружена страница в БД
-        if( ((popular && page > Constants.totalPopularPages)
-            || (!popular && page > Constants.totalNewPages)) && prevPage != page) {
-            disposable = ApiClient.instance
-                .getPicturesPage(new, popular, page, Constants.LIMIT_PER_PAGE)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ response ->
-                    when (response.code()) {
-                        200, 201, 202 -> {
-                            if(response.body()!!.data.isEmpty())
-                                presenter.endOfData()
-                            else {
-                                addPage(response.body()!!.data)
-                                if (popular)
-                                    Constants.totalPopularPages++
-                                else
-                                    Constants.totalNewPages++
-                                prevPage = page
-                                page++
-                                presenter.onSuccess()
-                            }
-                        }
-                        401 -> {
-                        }
-                        402 -> {
-                        }
-                        500 -> {
-                        }
-                        501 -> {
-                        }
-                    }
-                }, { _ ->
-                    // проверка на наличие страниц(если не загрузилась даже первая страница - показываем отсутствие подключения)
-                    if(page < 2)
-                        presenter.emptyRepository()
-                    else
-                        presenter.onFailure()
-                })
-        }else
-            presenter.onSuccess()
+    private fun addPage(pictures: PicPageDataModel) = database.addPicturesPage(pictures)
+    private val realmListener = RealmChangeListener<Realm> { realm ->
+        Log.d("HALO", "Data has changed")
+        presenter.dataHasChanged(realm.where(Picture::class.java).findAll())
     }
 
-    override fun getAll(new: Boolean, popular: Boolean): Observable<List<Picture>>
-            = Observable.just(realm.where(Picture::class.java).findAll())
 
-    override fun initData(popular:Boolean) {
-        page = if(popular) Constants.totalPopularPages + 1 else Constants.totalNewPages + 1
-        prevPage = page-1
-        if(page != 1)
+    override fun downloadNewPage(popular: Boolean) {
+        realm.addChangeListener(realmListener)
+        val head = realm.where(PicPageDataModel::class.java)
+            .equalTo("type", popular)
+            .findFirst()
+        Log.d("HALO", "in dNP" + head.toString())
+        if (head != null && head.countOfPages > page) {
+            val tail = realm.where(PicPageDataModel::class.java)
+                .equalTo("type", popular)
+                .findAll()
+                .last()
+            page = tail!!.page + 1
+            downloadPage(popular, page)
+        } else if (head == null) {
+            page = 1
+            downloadPage(popular, page)
+        } else {
+            presenter.endOfData()
+        }
+
+    }
+
+    override fun getAllByType(popular: Boolean): Observable<List<Picture>> =
+        Observable.just(realm.where(Picture::class.java).findAll())
+
+    override fun initPicturesByType(popular: Boolean) {
+        if (realm.where(PicPageDataModel::class.java).findFirst() != null)
             presenter.onSuccess()
         else
-            downloadNewPage(true,popular)
+            downloadNewPage(popular)
     }
 
-    override fun updateData(popular:Boolean) {
+    override fun updatePicturesByType(popular: Boolean) {
+        Realm.getDefaultInstance().executeTransaction {
+            Realm.getDefaultInstance().where(PicPageDataModel::class.java).realm.deleteAll()
+        }
         page = 1
-        prevPage = 0
-        Constants.totalNewPages = 0
-        Constants.totalPopularPages = 0
-        database.clearRealm(popular)
-        downloadNewPage(true,popular)
+        // не работает
+        //database.clearAllPagesByType(popular)
+        downloadNewPage(popular)
     }
 
     override fun onStop() {
-        if(disposable != null)
-            disposable!!.dispose()
+        disposable.dispose()
+    }
+
+
+    fun downloadPage(popular: Boolean, page: Int) {
+        disposable = ApiClient.instance
+            .getPicturesPage(true, popular, page, Constants.LIMIT_PER_PAGE)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ response ->
+                when (response.code()) {
+                    200, 201, 202 -> {
+                        if (response.body()!!.data.isEmpty())
+                            presenter.endOfData()
+                        else {
+                            val picPage = PicPageDataModel()
+                            picPage.data.addAll(response.body()!!.data)
+                            picPage.countOfPages = response.body()!!.countOfPages
+                            picPage.page = page
+                            picPage.type = popular
+                            this.page++
+                            addPage(picPage)
+                            presenter.onSuccess()
+                        }
+                    }
+                }
+            }, { _ ->
+                if (realm.where(PicPageDataModel::class.java).findFirst() == null)
+                    presenter.emptyRepository()
+                else
+                    presenter.onFailure()
+            })
     }
 }

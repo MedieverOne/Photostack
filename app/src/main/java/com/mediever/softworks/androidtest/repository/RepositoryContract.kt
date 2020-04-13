@@ -1,4 +1,5 @@
 package com.mediever.softworks.androidtest.repository
+
 //Bye CA
 import com.mediever.softworks.androidtest.models.Picture
 import io.reactivex.Observable
@@ -6,10 +7,10 @@ import io.reactivex.Observable
 
 interface RepositoryContract {
     interface PicturesRepositoryContract {
-        fun downloadNewPage(new:Boolean,popular:Boolean)
-        fun getAll(new:Boolean,popular:Boolean) : Observable<List<Picture>>
-        fun updateData(popular:Boolean)
-        fun initData(popular: Boolean)
+        fun downloadNewPage(popular: Boolean)
+        fun getAllByType(popular: Boolean): Observable<List<Picture>>
+        fun updatePicturesByType(popular: Boolean)
+        fun initPicturesByType(popular: Boolean)
         fun onStop()
     }
 
@@ -18,5 +19,6 @@ interface RepositoryContract {
         fun onFailure()
         fun emptyRepository()
         fun endOfData()
+        fun dataHasChanged(picturesList: List<Picture>)
     }
 }

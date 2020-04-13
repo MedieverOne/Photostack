@@ -6,4 +6,5 @@
     <string name="shucks">Oh Shucks!</string>
     <string name="no_internet">Slow or no internet connection.</string>
     <string name="no_internet_message">Please check your internet settings</string>
+    <string name="bad_internet">Sorry, bad internet, bro</string>
 </resources>

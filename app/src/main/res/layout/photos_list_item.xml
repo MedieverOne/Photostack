@@ -17,6 +17,30 @@
 
     </ProgressBar>
 
+<!--    <LinearLayout-->
+<!--        android:id="@+id/photos_item_no_internet"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:gravity="center"-->
+<!--        android:elevation="20dp"-->
+<!--        android:orientation="vertical"-->
+<!--        android:visibility="gone">-->
+
+<!--        <ImageView-->
+<!--            android:id="@+id/photos_item_no_internet_pic"-->
+<!--            android:layout_width="30dp"-->
+<!--            android:layout_height="30dp"-->
+<!--            card_view:srcCompat="@drawable/ic_highlight_off" />-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/photos_item_no_internet_text"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="@string/bad_internet">-->
+<!--        </TextView>-->
+
+<!--    </LinearLayout>-->
+
     <ImageView
         android:id="@+id/photos_item_image"
         android:layout_width="match_parent"

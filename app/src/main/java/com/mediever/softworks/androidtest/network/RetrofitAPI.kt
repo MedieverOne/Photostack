@@ -10,11 +10,14 @@ import retrofit2.http.Query
 
 interface RetrofitAPI {
     @GET("photos/{id}")
-    fun getPicture(@Path("id") id: Int) : Observable<Response<Picture>>
+    fun getPicture(@Path("id") id: Int): Observable<Response<Picture>>
+
     @GET("photos")
-    fun getPicturesPage(@Query("new") new:Boolean,
-                        @Query("popular") popular:Boolean,
-                        @Query("page") page:Int,
-                        @Query("limit") limit:Int) : Observable<Response<PicturesList>>
+    fun getPicturesPage(
+        @Query("new") new: Boolean,
+        @Query("popular") popular: Boolean,
+        @Query("page") page: Int,
+        @Query("limit") limit: Int
+    ): Observable<Response<PicturesList>>
 }
 

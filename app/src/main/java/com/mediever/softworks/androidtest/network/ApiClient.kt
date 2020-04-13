@@ -14,7 +14,8 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 class ApiClient {
-    private val retrofitAPI:RetrofitAPI
+    private val retrofitAPI: RetrofitAPI
+
     init {
         val gson = GsonBuilder()
             .setLenient()
@@ -36,22 +37,25 @@ class ApiClient {
 
     companion object {
         private var apiClient: ApiClient? = null
-        val instance: ApiClient get() {
-            if (apiClient == null) {
-                apiClient = ApiClient()
+        val instance: ApiClient
+            get() {
+                if (apiClient == null) {
+                    apiClient = ApiClient()
+                }
+                return apiClient as ApiClient
             }
-            return apiClient as ApiClient
-        }
     }
 
     fun getPicture(id: Int): Observable<Response<Picture>> {
         return retrofitAPI.getPicture(id)
     }
 
-    fun getPicturesPage(new:Boolean,
-                        popular:Boolean,
-                        page:Int,
-                        limit:Int) : Observable<Response<PicturesList>> {
-        return retrofitAPI.getPicturesPage(new,popular,page,limit)
+    fun getPicturesPage(
+        new: Boolean,
+        popular: Boolean,
+        page: Int,
+        limit: Int
+    ): Observable<Response<PicturesList>> {
+        return retrofitAPI.getPicturesPage(new, popular, page, limit)
     }
 }

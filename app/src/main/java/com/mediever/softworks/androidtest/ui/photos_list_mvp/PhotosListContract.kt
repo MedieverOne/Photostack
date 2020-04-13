@@ -4,18 +4,19 @@ import com.mediever.softworks.androidtest.models.Picture
 
 interface PhotosListContract {
     interface PhotosListView {
+        fun dataHasChanged(picturesList: List<Picture>)
         fun showProgress()
         fun hideProgress()
-        fun onSuccess (picturesList: List<Picture>)
-        fun onError ()
-        fun endOfData ()
+        fun onSuccess(picturesList: List<Picture>)
+        fun onError()
+        fun endOfData()
     }
 
     interface PhotosListPresenter {
-        fun updateData()
-        fun initData()
+        fun updatePicturesByType()
+        fun initPicturesByType()
         fun getPicturesPage()
-        fun getAll()
+        fun getAllByActualType()
         fun onStop()
     }
 }

@@ -5,7 +5,8 @@ import com.mediever.softworks.androidtest.models.Picture
 import io.reactivex.disposables.Disposable
 import io.realm.Realm
 
-class PhotoInfoPresenterImpl(var view: PhotoInfoContract.PhotoInfoView?) : PhotoInfoContract.PhotoInfoPresenter {
+class PhotoInfoPresenterImpl(var view: PhotoInfoContract.PhotoInfoView?) :
+    PhotoInfoContract.PhotoInfoPresenter {
 
     @NonNull
     var disposable: Disposable? = null
@@ -13,13 +14,13 @@ class PhotoInfoPresenterImpl(var view: PhotoInfoContract.PhotoInfoView?) : Photo
     override fun getPicture(id: Int) {
         val realm: Realm = Realm.getDefaultInstance()
         realm.beginTransaction()
-        val picture = realm.where(Picture::class.java).equalTo("id",id).findFirst()
+        val picture = realm.where(Picture::class.java).equalTo("id", id).findFirst()
         realm.cancelTransaction()
         view!!.onSuccess(picture)
     }
 
     override fun onStop() {
-        if(disposable != null)
+        if (disposable != null)
             disposable!!.dispose()
     }
 }
