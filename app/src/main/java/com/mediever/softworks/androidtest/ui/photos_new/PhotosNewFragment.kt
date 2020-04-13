@@ -125,13 +125,13 @@ class PhotosNewFragment : Fragment(), PhotosListContract.PhotosListView , SwipeR
         override fun handleMessage(msg: Message?) {
             super.handleMessage(msg)
             when (state) {
-                Constants.FragmentState.INIT        -> { initScreen() }
-                Constants.FragmentState.BAD_CONNECT -> { badConnection() }
+                Constants.FragmentState.INIT        -> { loading = true; initScreen() }
+                Constants.FragmentState.BAD_CONNECT -> { loading = true; hideProgress(); badConnection() }
                 Constants.FragmentState.NEW_PAGE    -> { loading = true; newPage() }
                 Constants.FragmentState.LOADING     -> { loading = true }
                 Constants.FragmentState.ACTIVE      -> { loading = false }
-                Constants.FragmentState.UPDATE_DATA -> { updateData() }
-                Constants.FragmentState.END_OF_DATA -> { loading = true }
+                Constants.FragmentState.UPDATE_DATA -> { loading = true; updateData() }
+                Constants.FragmentState.END_OF_DATA -> { loading = true; hideProgress() }
             }
         }
     } // Handler
@@ -151,7 +151,6 @@ class PhotosNewFragment : Fragment(), PhotosListContract.PhotosListView , SwipeR
     fun badConnection() { showProgress() }
 
     fun newPage() {
-        loading = true
         showProgress()
         getPicturesPage()
     }
@@ -209,6 +208,7 @@ class PhotosNewFragment : Fragment(), PhotosListContract.PhotosListView , SwipeR
     }
 
     override fun onError() {
+        hideProgress()
         changeState(Constants.FragmentState.BAD_CONNECT)
     }
 
@@ -218,7 +218,10 @@ class PhotosNewFragment : Fragment(), PhotosListContract.PhotosListView , SwipeR
 
     override fun onRefresh() {
         swipeRefreshLayout.isRefreshing = false
-        if(state != Constants.FragmentState.LOADING)
+        if(state != Constants.FragmentState.LOADING
+            && state != Constants.FragmentState.UPDATE_DATA
+            && state != Constants.FragmentState.INIT) {
             changeState(Constants.FragmentState.UPDATE_DATA)
+        }
     }
 }

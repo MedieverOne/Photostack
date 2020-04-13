@@ -26,7 +26,6 @@ class PicturesRepository(val presenter:RepositoryContract.PicturesPresenterContr
         // проверка на популярность и то была ли загружена страница в БД
         if( ((popular && page > Constants.totalPopularPages)
             || (!popular && page > Constants.totalNewPages)) && prevPage != page) {
-            Log.d("HALO", "loading page: " + page)
             disposable = ApiClient.instance
                 .getPicturesPage(new, popular, page, Constants.LIMIT_PER_PAGE)
                 .subscribeOn(Schedulers.io())
@@ -84,8 +83,8 @@ class PicturesRepository(val presenter:RepositoryContract.PicturesPresenterContr
         prevPage = 0
         Constants.totalNewPages = 0
         Constants.totalPopularPages = 0
-        downloadNewPage(true,popular)
         database.clearRealm(popular)
+        downloadNewPage(true,popular)
     }
 
     override fun onStop() {
