@@ -4,8 +4,8 @@ import androidx.recyclerview.widget.DiffUtil
 import com.mediever.softworks.androidtest.models.Picture
 
 class PicturesUtilCallback(
-    val oldList: List<Picture>,
-    val newList: List<Picture>
+    private val oldList: List<Picture>,
+    private val newList: List<Picture>
 ) : DiffUtil.Callback() {
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         val oldPicture = oldList[oldItemPosition]

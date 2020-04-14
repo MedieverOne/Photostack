@@ -1,9 +1,7 @@
 package com.mediever.softworks.androidtest.repository
 
 import android.util.Log
-import androidx.annotation.NonNull
-import com.mediever.softworks.androidtest.database.PicPageDataModel
-import com.mediever.softworks.androidtest.database.PicturesDatabase
+import com.mediever.softworks.androidtest.models.PicPageDataModel
 import com.mediever.softworks.androidtest.models.Picture
 import com.mediever.softworks.androidtest.network.ApiClient
 import com.mediever.softworks.androidtest.util.Constants
@@ -18,11 +16,8 @@ class PicturesRepository(private val presenter: RepositoryContract.PicturesPrese
     RepositoryContract.PicturesRepositoryContract {
     private var disposable: Disposable = CompositeDisposable()
     private val realm: Realm = Realm.getDefaultInstance()
-    private val database: PicturesDatabase = PicturesDatabase()
-    var page: Int = 1
-    private fun addPage(pictures: PicPageDataModel) = database.addPicturesPage(pictures)
+    private var page: Int = 1
     private val realmListener = RealmChangeListener<Realm> { realm ->
-        Log.d("HALO", "Data has changed")
         presenter.dataHasChanged(realm.where(Picture::class.java).findAll())
     }
 
@@ -64,8 +59,6 @@ class PicturesRepository(private val presenter: RepositoryContract.PicturesPrese
             Realm.getDefaultInstance().where(PicPageDataModel::class.java).realm.deleteAll()
         }
         page = 1
-        // не работает
-        //database.clearAllPagesByType(popular)
         downloadNewPage(popular)
     }
 
@@ -85,13 +78,14 @@ class PicturesRepository(private val presenter: RepositoryContract.PicturesPrese
                         if (response.body()!!.data.isEmpty())
                             presenter.endOfData()
                         else {
-                            val picPage = PicPageDataModel()
+                            val picPage =
+                                PicPageDataModel()
                             picPage.data.addAll(response.body()!!.data)
                             picPage.countOfPages = response.body()!!.countOfPages
                             picPage.page = page
                             picPage.type = popular
                             this.page++
-                            addPage(picPage)
+                            addPageToDatabase(picPage)
                             presenter.onSuccess()
                         }
                     }
@@ -102,5 +96,10 @@ class PicturesRepository(private val presenter: RepositoryContract.PicturesPrese
                 else
                     presenter.onFailure()
             })
+    }
+
+    private fun addPageToDatabase(picDataModel: PicPageDataModel) {
+        Realm.getDefaultInstance()
+            .use { it -> it.executeTransactionAsync { it.insertOrUpdate(picDataModel) } }
     }
 }

@@ -1,7 +1,5 @@
-package com.mediever.softworks.androidtest.database
+package com.mediever.softworks.androidtest.models
 
-import com.mediever.softworks.androidtest.models.Picture
-import com.mediever.softworks.androidtest.models.PicturesList
 import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.*

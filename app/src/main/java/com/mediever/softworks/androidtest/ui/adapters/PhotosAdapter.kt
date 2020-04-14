@@ -3,9 +3,7 @@ package com.mediever.softworks.androidtest.ui.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
 import com.mediever.softworks.androidtest.R
@@ -16,10 +14,9 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.photos_list_item.view.*
 import java.lang.Exception
 
-class PhotosAdapter(var onPicClick: ((Picture) -> Unit)? = null) : RecyclerView.Adapter<PhotosAdapter.PhotosViewHolder>() {
-
+class PhotosAdapter(var onPicClick: ((Picture) -> Unit)? = null) :
+    RecyclerView.Adapter<PhotosAdapter.PhotosViewHolder>() {
     var picturesList: ArrayList<Picture> = ArrayList()
-    //var onPicClick: ((Picture) -> Unit)? = null
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -35,11 +32,6 @@ class PhotosAdapter(var onPicClick: ((Picture) -> Unit)? = null) : RecyclerView.
         return picturesList.size
     }
 
-//    fun addData(pictures: List<Picture>) {
-//        this.picturesList.addAll(pictures)
-//        notifyDataSetChanged()
-//    }
-
     fun setData(pictures: List<Picture>) {
         this.picturesList = pictures as ArrayList<Picture>
         notifyDataSetChanged()
@@ -50,7 +42,7 @@ class PhotosAdapter(var onPicClick: ((Picture) -> Unit)? = null) : RecyclerView.
         notifyDataSetChanged()
     }
 
-    override fun onBindViewHolder(holder: PhotosAdapter.PhotosViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: PhotosViewHolder, position: Int) {
         val pic = picturesList[position]
         Picasso.get().load(Constants.IMAGE_URL + pic.image!!.name)
             .placeholder(R.drawable.loading_image)

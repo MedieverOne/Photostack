@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.mediever.softworks.androidtest.R
@@ -13,6 +14,7 @@ import com.mediever.softworks.androidtest.ui.adapters.PhotosAdapter
 import com.mediever.softworks.androidtest.ui.photos_list_mvp.PhotosListPresenterImpl
 import com.mediever.softworks.androidtest.util.Constants
 import com.mediever.softworks.androidtest.util.GridItemDecoration
+import kotlinx.android.synthetic.main.fragment_photos_new.*
 import kotlinx.android.synthetic.main.fragment_photos_new.view.*
 
 
@@ -25,18 +27,22 @@ class PhotosNewFragment : BasePhotosListFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        root = inflater.inflate(R.layout.fragment_photos_new, container, false)
-        message = root.no_internet_connection_new
-        swipeRefreshLayout = root.swipe_container_new
-        recyclerView = root.rv_photos_list_new
+        val root = inflater.inflate(R.layout.fragment_photos_new, container, false)
         presenter = PhotosListPresenterImpl(this, popular)
-        swipeRefreshLayout.setOnRefreshListener(this)
+        recyclerView = root.rv_photos_list_new
         setupRecycler()
         changeState(Constants.FragmentState.INIT)
         return root
     }
 
+    override fun onResume() {
+        super.onResume()
+        swipe_container_new.setOnRefreshListener(this)
+
+    }
+
     override fun setupRecycler() {
+         // инициализировал чтобы не перегружать ещё пару методов
         listAdapter = PhotosAdapter()
         if (activity?.resources!!.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             gridLayoutManager = GridLayoutManager(context, 3)
@@ -60,21 +66,31 @@ class PhotosNewFragment : BasePhotosListFragment() {
     override fun showProgress() {
         when (state) {
             Constants.FragmentState.INIT, Constants.FragmentState.UPDATE_DATA -> {
-                loader = root.loader_new
-                loader.visibility = View.VISIBLE
-                if (message.visibility == View.VISIBLE)
-                    message.visibility = View.GONE
+                loader_new.visibility = View.VISIBLE
+                if (no_internet_connection_new.visibility == View.VISIBLE)
+                    no_internet_connection_new.visibility = View.GONE
             }
             Constants.FragmentState.NEW_PAGE -> {
-                loader = root.loader_page_new
-                loader.visibility = View.VISIBLE
+                loader_page_new.visibility = View.VISIBLE
             }
             Constants.FragmentState.BAD_CONNECT -> {
-                message = root.no_internet_connection_new
-                message.visibility = View.VISIBLE
+                no_internet_connection_new.visibility = View.VISIBLE
             }
-            else -> {
-            }
+            else -> {}
         }
+    }
+
+    override fun hideProgress() {
+        if(loader_page_new.isVisible)
+            loader_page_new.visibility = View.GONE
+        if(loader_new.isVisible)
+            loader_new.visibility = View.GONE
+    }
+
+
+
+    override fun onRefresh() {
+        swipe_container_new.isRefreshing = false
+        super.onRefresh()
     }
 }

@@ -1,23 +1,25 @@
 package com.mediever.softworks.androidtest
 
+import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
-import com.mediever.softworks.androidtest.database.PicPageDataModel
-import com.mediever.softworks.androidtest.database.PicturesDatabase
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.mediever.softworks.androidtest.models.PicPageDataModel
 import io.realm.Realm
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        val database = PicturesDatabase()
-//        database.clearAll()
-
-        Realm.getDefaultInstance().executeTransaction {
-            Realm.getDefaultInstance().where(PicPageDataModel::class.java).realm.deleteAll()
+        if (isOnline()) {
+            Realm.getDefaultInstance().executeTransaction {
+                Realm.getDefaultInstance().where(PicPageDataModel::class.java).realm.deleteAll()
+            }
         }
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
@@ -31,5 +33,11 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun isOnline(): Boolean {
+        val cm =
+            getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = cm.getNetworkCapabilities(cm.activeNetwork)
+        return capabilities != null
+    }
 }

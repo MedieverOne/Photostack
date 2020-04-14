@@ -24,7 +24,6 @@ class PhotosListPresenterImpl(
 
     override fun getPicturesPage() {
         view!!.showProgress()
-        Log.d("HALO", "presenter get Pic PAGE")
         repository.downloadNewPage(popular)
     }
 
@@ -69,5 +68,4 @@ class PhotosListPresenterImpl(
         view!!.hideProgress()
         view!!.endOfData()
     }
-
 }

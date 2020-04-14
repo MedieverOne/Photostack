@@ -1,15 +1,14 @@
 package com.mediever.softworks.androidtest.ui.photo_info
 
-import androidx.annotation.NonNull
 import com.mediever.softworks.androidtest.models.Picture
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.realm.Realm
 
 class PhotoInfoPresenterImpl(var view: PhotoInfoContract.PhotoInfoView?) :
     PhotoInfoContract.PhotoInfoPresenter {
 
-    @NonNull
-    var disposable: Disposable? = null
+    private var disposable: Disposable = CompositeDisposable()
 
     override fun getPicture(id: Int) {
         val realm: Realm = Realm.getDefaultInstance()
@@ -20,7 +19,6 @@ class PhotoInfoPresenterImpl(var view: PhotoInfoContract.PhotoInfoView?) :
     }
 
     override fun onStop() {
-        if (disposable != null)
-            disposable!!.dispose()
+        disposable.dispose()
     }
 }

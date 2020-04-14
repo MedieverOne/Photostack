@@ -46,10 +46,6 @@ class ApiClient {
             }
     }
 
-    fun getPicture(id: Int): Observable<Response<Picture>> {
-        return retrofitAPI.getPicture(id)
-    }
-
     fun getPicturesPage(
         new: Boolean,
         popular: Boolean,
